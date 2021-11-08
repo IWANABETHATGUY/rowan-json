@@ -29,7 +29,9 @@ enum Token {
     #[token("null")]
     Null,
 
-    #[regex("\"[^\"]+\"")]
+    // (?<string>    " ([^"\\\\]* | \\\\ ["\\\\bfnrt\/] | \\\\ u [0-9a-f]{4} )* " )
+    // |\\["\\bfnrt\/]|\\u [0-9a-f]{4})*
+    #[regex(r#"([^"\\])*"#)]
     Text,
     // #[regex(r#"\."#)]
     // Text1,
