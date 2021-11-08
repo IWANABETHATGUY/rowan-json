@@ -1,7 +1,7 @@
 use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq)]
-enum Token {
+pub enum Token {
     #[token("{")]
     LeftBrace,
 
@@ -30,7 +30,10 @@ enum Token {
     Null,
 
     // (?<string>    " ([^"\\\\]* | \\\\ ["\\\\bfnrt\/] | \\\\ u [0-9a-f]{4} )* " )
-    // |\\["\\bfnrt\/]|\\u [0-9a-f]{4})*
+    // ||\\u [0-9a-f]{4})*
+
+    #[regex(r#"\\["\\/bfnrt]"#)]
+    #[regex(r#"\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]"#)]
     #[regex(r#"([^"\\])*"#)]
     Text,
     // #[regex(r#"\."#)]
