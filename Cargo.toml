@@ -10,3 +10,12 @@ logos = "0.12.0"
 num-derive = "0.3.3"
 num-traits = "0.2.14"
 rowan = "0.14.1"
+expect-test = "1.0.1"
+nom = "7.0.0"
+
+
+[profile.release]
+debug = true
+
+[dev-dependencies]
+nom = "7.0.0"

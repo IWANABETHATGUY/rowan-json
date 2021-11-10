@@ -1,3 +1,3 @@
-pub(crate) mod lexer;
-pub(crate) mod parser;
-mod syntax;
+pub mod lexer;
+pub mod parser;
+pub mod syntax;

@@ -2,7 +2,7 @@ use crate::lexer::SyntaxKind;
 use num_traits::{FromPrimitive, ToPrimitive};
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum Json {}
+pub enum Json {}
 
 impl rowan::Language for Json {
     type Kind = SyntaxKind;
@@ -17,4 +17,4 @@ impl rowan::Language for Json {
 }
 
 
-pub(crate) type SyntaxNode = rowan::SyntaxNode<Json>;
+pub type SyntaxNode = rowan::SyntaxNode<Json>;
