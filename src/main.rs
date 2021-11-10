@@ -14,11 +14,12 @@ fn main() {
     let start = Instant::now();
     let res = parse.parse();
     println!("{:?}", start.elapsed());
-    let _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
+    let root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
 
     let start = Instant::now();
     json(string).unwrap();
     println!("{:?}", start.elapsed());
+    
     // println!("{:#?}", root);
 }
 
