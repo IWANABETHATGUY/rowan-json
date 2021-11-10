@@ -1,4 +1,4 @@
-#GOAL
+# GOAL
 write a simple POC to validate if rowan has performance issue
 
 ## benchmark
