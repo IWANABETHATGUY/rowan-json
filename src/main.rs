@@ -1,9 +1,10 @@
 use std::time::Instant;
 
 use logos::Logos;
-use rowan_json::{lexer::SyntaxKind, parser::Parser};
+use rowan::{GreenNode, GreenToken, SyntaxElement, SyntaxToken};
+use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode};
 fn main() {
-    let string = include_str!("../assets/big.json");
+    let string = include_str!("../assets/test.json");
     // let mut lex = SyntaxKind::lexer(string);
     // while let Some(a) = lex.next() {
     //     if matches!(a, SyntaxKind::Error) {
@@ -15,12 +16,31 @@ fn main() {
     let res = parse.parse();
     println!("{:?}", start.elapsed());
     let root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
+    let mutable_root = root.clone_for_update();
+    mutable_root.first_child().unwrap().index();
+    // println!("{}", mutable_root);
+    root.preorder_with_tokens().reduce(|acc, cur| {
 
-    let start = Instant::now();
-    json(string).unwrap();
-    println!("{:?}", start.elapsed());
-    
-    // println!("{:#?}", root);
+    });
+    // let mut iter = root.preorder_with_tokens();
+    // while let Some(event) = iter.next() {
+    //     match event {
+    //         rowan::WalkEvent::Enter(node) => {
+    //             if node.kind() == SyntaxKind::String {
+    //                 if &string[node.text_range()] == r#""test""# {}
+    //                 let index = node.index();
+    //                 let mut res = node.parent().unwrap().clone_for_update();
+    //                 res.splice_children(index..index+1, vec![]);
+    //                 println!("{}", res);
+    //                 node.parent().unwrap().replace_with(GreenNode::new(res.kind().into(), vec![]));
+    //             }
+    //         }
+    //         rowan::WalkEvent::Leave(node) => {
+    //             // println!("leave {:?}, ", node.kind());
+    //         }
+    //     }
+    // }
+    println!("{}", root);
 }
 
 use nom::{
@@ -157,8 +177,6 @@ fn json_value(input: &str) -> IResult<&str, JsonValue> {
 fn json(input: &str) -> IResult<&str, JsonValue> {
     ws(json_value).parse(input)
 }
-
-
 
 use nom::Err;
 use nom::ParseTo;

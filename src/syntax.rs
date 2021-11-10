@@ -18,3 +18,4 @@ impl rowan::Language for Json {
 
 
 pub type SyntaxNode = rowan::SyntaxNode<Json>;
+pub type SyntaxToken = rowan::SyntaxToken<Json>;
