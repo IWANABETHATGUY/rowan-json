@@ -26,10 +26,9 @@ fn main() {
                 if node.kind() == SyntaxKind::String {
                     if &string[node.text_range()] == r#""test""# {}
                     let index = node.index();
-                    let mut res = node.parent().unwrap().clone_for_update();
-                    // res.splice_children(index..index+1, vec![]);
-                    // println!("{}", res);
-                    res.splice_children(index..index+1, vec![]);
+                    let clone_parent = node.parent().unwrap().clone_for_update();
+                    clone_parent.children_with_tokens().nth(index).unwrap().detach();
+                    // println!("{}", clone_parent);
                 }
             }
             rowan::WalkEvent::Leave(node) => {
