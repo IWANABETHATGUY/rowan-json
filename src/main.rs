@@ -16,30 +16,27 @@ fn main() {
     let res = parse.parse();
     println!("{:?}", start.elapsed());
     let root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
-    let mutable_root = root.clone_for_update();
-    mutable_root.first_child().unwrap().index();
+    // let mutable_root = root.clone_for_update();
+    // mutable_root.first_child().unwrap().index();
     // println!("{}", mutable_root);
-    root.preorder_with_tokens().reduce(|acc, cur| {
-
-    });
-    // let mut iter = root.preorder_with_tokens();
-    // while let Some(event) = iter.next() {
-    //     match event {
-    //         rowan::WalkEvent::Enter(node) => {
-    //             if node.kind() == SyntaxKind::String {
-    //                 if &string[node.text_range()] == r#""test""# {}
-    //                 let index = node.index();
-    //                 let mut res = node.parent().unwrap().clone_for_update();
-    //                 res.splice_children(index..index+1, vec![]);
-    //                 println!("{}", res);
-    //                 node.parent().unwrap().replace_with(GreenNode::new(res.kind().into(), vec![]));
-    //             }
-    //         }
-    //         rowan::WalkEvent::Leave(node) => {
-    //             // println!("leave {:?}, ", node.kind());
-    //         }
-    //     }
-    // }
+    let mut iter = root.preorder_with_tokens();
+    while let Some(event) = iter.next() {
+        match event {
+            rowan::WalkEvent::Enter(node) => {
+                if node.kind() == SyntaxKind::String {
+                    if &string[node.text_range()] == r#""test""# {}
+                    let index = node.index();
+                    let mut res = node.parent().unwrap().clone_for_update();
+                    // res.splice_children(index..index+1, vec![]);
+                    // println!("{}", res);
+                    res.splice_children(index..index+1, vec![]);
+                }
+            }
+            rowan::WalkEvent::Leave(node) => {
+                // println!("leave {:?}, ", node.kind());
+            }
+        }
+    }
     println!("{}", root);
 }
 
