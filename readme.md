@@ -1,5 +1,5 @@
 # GOAL
-write a simple POC to validate if rowan has performance issue
+write a simple POC to validate if rowan has performance issue, it seems no.
 
 ## benchmark
 parse the `assets/big.json` 500kb  
