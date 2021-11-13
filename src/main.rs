@@ -1,41 +1,56 @@
-use std::time::Instant;
+use std::{ops::Deref, time::Instant};
 
 use logos::Logos;
-use rowan::{GreenNode, GreenToken, SyntaxElement, SyntaxToken};
-use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode};
+use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
+use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
 fn main() {
-    let string = include_str!("../assets/test.json");
-    // let mut lex = SyntaxKind::lexer(string);
-    // while let Some(a) = lex.next() {
-    //     if matches!(a, SyntaxKind::Error) {
-    //         println!("{:?}, {:?}, {}", a, lex.span(), lex.slice());
-    //     }
-    // }
-    let parse = Parser::new(string);
+    let string = include_str!("../assets/big.json");
+    rowan_traverse(string);
+    // println!("{}", root);
+}
+
+fn rowan_traverse(string: &str) {
     let start = Instant::now();
+    let parse = Parser::new(string);
     let res = parse.parse();
+    let mut root = rowan_json::syntax::SyntaxNode::new_root(res.green_node).clone_for_update();
     println!("{:?}", start.elapsed());
-    let root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
-    // let mutable_root = root.clone_for_update();
-    // mutable_root.first_child().unwrap().index();
-    // println!("{}", mutable_root);
+    let now = Instant::now();
+    let mut node_list: Vec<
+        NodeOrToken<
+            rowan::SyntaxNode<rowan_json::syntax::Json>,
+            rowan::SyntaxToken<rowan_json::syntax::Json>,
+        >,
+    > = vec![];
     let mut iter = root.preorder_with_tokens();
     while let Some(event) = iter.next() {
         match event {
-            rowan::WalkEvent::Enter(node) => {
-                if node.kind() == SyntaxKind::String {
-                    if &string[node.text_range()] == r#""test""# {}
-                    let index = node.index();
-                    let clone_parent = node.parent().unwrap().clone_for_update();
-                    clone_parent.children_with_tokens().nth(index).unwrap().detach();
-                    // println!("{}", clone_parent);
-                }
-            }
             rowan::WalkEvent::Leave(node) => {
+                if node.kind() == SyntaxKind::String && &string[node.text_range()] == r#""id""# {
+                    node_list.push(node);
+                }
                 // println!("leave {:?}, ", node.kind());
             }
+            _ => {}
         }
     }
+    println!("traverse {:?}", now.elapsed());
+    let now = Instant::now();
+    node_list.iter().for_each(|range| match range {
+        NodeOrToken::Node(node) => {}
+        NodeOrToken::Token(token) => {
+            let index = token.index();
+            let node =
+                SyntaxNode::new_root(Parser::new(r#""id2""#).parse().green_node).clone_for_update();
+            let tok = node.first_token().unwrap();
+            // println!("{}", tok);
+            token
+                .parent()
+                .unwrap()
+                .splice_children(index+1..index+1, vec![rowan::NodeOrToken::Token(tok)]);
+        }
+    });
+    println!("mutate{:?}", now.elapsed());
     println!("{}", root);
 }
 
