@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-let json = fs.readFileSync("./assets/200k.json").toString();
+let json = fs.readFileSync("./assets/big.json").toString();
 
 console.time("parse");
 let obj = JSON.parse(json);

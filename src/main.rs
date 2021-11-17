@@ -4,8 +4,12 @@ use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
 use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
 use rayon::prelude::*;
 use json_pop::{parse_str, value::Value};
+use mimalloc_rust::*;
+
+#[global_allocator]
+static GLOBAL_MIMALLOC: GlobalMiMalloc = GlobalMiMalloc;
 fn main() {
-    let string = include_str!("../assets/200k.json");
+    let string = include_str!("../assets/big.json");
     rowan_traverse(string);
 }
 
@@ -43,11 +47,17 @@ fn rowan_traverse(string: &str) {
 
     let start = Instant::now();
     traverse_lr(&mut _res);
-    println!("{:?}", start.elapsed());
+    println!("traverse_lr {:?}", start.elapsed());
     
     let start = Instant::now();
     let _string = format!("{}", _res);
-    println!("{:?}", start.elapsed());
+    println!("stringify {:?}", start.elapsed());
+
+
+
+    let start = Instant::now();
+    json(string).unwrap();
+    println!("nom {:?}", start.elapsed());
 }
 
 fn traverse_lr(value: &mut Value) {
