@@ -1,57 +1,75 @@
 use std::{ops::Deref, time::Instant};
-
 use logos::Logos;
 use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
 use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
+use rayon::prelude::*;
+use json_pop::{parse_str, value::Value};
 fn main() {
-    let string = include_str!("../assets/big.json");
+    let string = include_str!("../assets/200k.json");
     rowan_traverse(string);
-    // println!("{}", root);
 }
 
 fn rowan_traverse(string: &str) {
     let start = Instant::now();
     let parse = Parser::new(string);
     let res = parse.parse();
-    let mut root = rowan_json::syntax::SyntaxNode::new_root(res.green_node).clone_for_update();
-    println!("{:?}", start.elapsed());
+    let mut _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node).clone_for_update();
+    println!("rowan {:?}", start.elapsed());
+    let mut iter = _root.preorder();
     let now = Instant::now();
-    let mut node_list: Vec<
-        NodeOrToken<
-            rowan::SyntaxNode<rowan_json::syntax::Json>,
-            rowan::SyntaxToken<rowan_json::syntax::Json>,
-        >,
-    > = vec![];
-    let mut iter = root.preorder_with_tokens();
     while let Some(event) = iter.next() {
         match event {
             rowan::WalkEvent::Leave(node) => {
-                if node.kind() == SyntaxKind::String && &string[node.text_range()] == r#""id""# {
-                    node_list.push(node);
-                }
+                // if node.kind() == SyntaxKind::Whitespace {
+                //     // node_list.push(node);
+                // }
                 // println!("leave {:?}, ", node.kind());
             }
             _ => {}
         }
     }
-    println!("traverse {:?}", now.elapsed());
-    let now = Instant::now();
-    node_list.iter().for_each(|range| match range {
-        NodeOrToken::Node(node) => {}
-        NodeOrToken::Token(token) => {
-            let index = token.index();
-            let node =
-                SyntaxNode::new_root(Parser::new(r#""id2""#).parse().green_node).clone_for_update();
-            let tok = node.first_token().unwrap();
-            // println!("{}", tok);
-            token
-                .parent()
-                .unwrap()
-                .splice_children(index+1..index+1, vec![rowan::NodeOrToken::Token(tok)]);
-        }
-    });
-    println!("mutate{:?}", now.elapsed());
-    println!("{}", root);
+    println!("traverse rowan {:?}", now.elapsed());
+    let start = Instant::now();
+    let mut _res = format!("{}", _root);
+    // let _res = format!("{}", root);
+
+    println!("stringify rowan {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let mut _res = parse_str(string).unwrap();
+    // let _res = format!("{}", root);
+    println!("parse lr {:?}", start.elapsed());
+
+
+    let start = Instant::now();
+    traverse_lr(&mut _res);
+    println!("{:?}", start.elapsed());
+    
+    let start = Instant::now();
+    let _string = format!("{}", _res);
+    println!("{:?}", start.elapsed());
+}
+
+fn traverse_lr(value: &mut Value) {
+    match value {
+        Value::Number(_) => {},
+        Value::String(string) => {
+        },
+        Value::Object(v) => {
+            v.iter_mut().for_each(|item| {
+                traverse_lr(&mut item.1);
+            });
+            // v.push(("key", Value::Bool(false)));
+        },
+        Value::Bool(_) => {},
+        Value::Null => {},
+        Value::Array(value) => {
+            value.iter_mut().for_each(|v| {
+                traverse_lr(v);
+            });
+            // value.push(Value::String("array"));
+        },
+    }
 }
 
 use nom::{

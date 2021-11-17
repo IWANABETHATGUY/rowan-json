@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "compress-json": "^2.0.1"
+  }
+}

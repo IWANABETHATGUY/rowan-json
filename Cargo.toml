@@ -12,6 +12,8 @@ num-traits = "0.2.14"
 rowan = "0.14.1"
 expect-test = "1.0.1"
 nom = "7.0.0"
+rayon = "1.5.1"
+json-pop = "0.0.2"
 
 
 [profile.release]
