@@ -1,10 +1,11 @@
-use std::{ops::Deref, time::Instant};
-use logos::Logos;
-use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
-use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
-use rayon::prelude::*;
 use json_pop::{parse_str, value::Value};
+use logos::Logos;
 use mimalloc_rust::*;
+use rayon::prelude::*;
+use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
+use rowan_json::recursive;
+use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
+use std::{ops::Deref, time::Instant};
 
 #[global_allocator]
 static GLOBAL_MIMALLOC: GlobalMiMalloc = GlobalMiMalloc;
@@ -44,41 +45,63 @@ fn rowan_traverse(string: &str) {
     // let _res = format!("{}", root);
     println!("parse lr {:?}", start.elapsed());
 
-
     let start = Instant::now();
     traverse_lr(&mut _res);
     println!("traverse_lr {:?}", start.elapsed());
-    
+
     let start = Instant::now();
     let _string = format!("{}", _res);
     println!("stringify {:?}", start.elapsed());
 
-
-
     let start = Instant::now();
     json(string).unwrap();
     println!("nom {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let mut parser = recursive::Parser::new(string);
+    let mut _res = parser.parse();
+    println!("{:?}", start.elapsed());
+
+    let start = Instant::now();
+    traverse_recursive(&mut _res);
+    println!("traverse_lr {:?}", start.elapsed());
 }
 
 fn traverse_lr(value: &mut Value) {
     match value {
-        Value::Number(_) => {},
-        Value::String(string) => {
-        },
+        Value::Number(_) => {}
+        Value::String(string) => {}
         Value::Object(v) => {
             v.iter_mut().for_each(|item| {
                 traverse_lr(&mut item.1);
             });
             // v.push(("key", Value::Bool(false)));
-        },
-        Value::Bool(_) => {},
-        Value::Null => {},
+        }
+        Value::Bool(_) => {}
+        Value::Null => {}
         Value::Array(value) => {
             value.iter_mut().for_each(|v| {
                 traverse_lr(v);
             });
             // value.push(Value::String("array"));
-        },
+        }
+    }
+}
+
+fn traverse_recursive(value: &mut recursive::Value) {
+    match value {
+        recursive::Value::String(_) => (),
+        recursive::Value::Boolean(_) => (),
+        recursive::Value::Null => (),
+        recursive::Value::Number(_) => (),
+        recursive::Value::Object(v) => v
+            .iter_mut()
+            .for_each(|item| traverse_recursive(&mut item.1)),
+        recursive::Value::Array(value) => {
+            value.iter_mut().for_each(|v| {
+                traverse_recursive(v);
+            });
+        }
     }
 }
 
