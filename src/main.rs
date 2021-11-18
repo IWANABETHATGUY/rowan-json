@@ -50,7 +50,7 @@ fn rowan_traverse(string: &str) {
     println!("traverse_lr {:?}", start.elapsed());
 
     let start = Instant::now();
-    let _string = format!("{}", _res);
+    let _string_lr = format!("{}", _res);
     println!("stringify {:?}", start.elapsed());
 
     let start = Instant::now();
@@ -60,11 +60,17 @@ fn rowan_traverse(string: &str) {
     let start = Instant::now();
     let mut parser = recursive::Parser::new(string);
     let mut _res = parser.parse();
-    println!("{:?}", start.elapsed());
+    println!("recursive traverser {:?}", start.elapsed());
 
     let start = Instant::now();
     traverse_recursive(&mut _res);
-    println!("traverse_lr {:?}", start.elapsed());
+    println!("recursive traverse {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let _string = format!("{}", _res);
+    println!("{}", _string);
+    println!("recursive stringify {:?}", start.elapsed());
+    
 }
 
 fn traverse_lr(value: &mut Value) {

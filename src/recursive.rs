@@ -1,4 +1,4 @@
-use std::iter::Peekable;
+use std::{fmt, iter::Peekable};
 
 use crate::lexer::{Lexer, SyntaxKind};
 
@@ -11,8 +11,35 @@ pub enum Value<'a> {
     Array(Vec<Value<'a>>),
 }
 
-struct String<'a> {
-    value: &'a str,
+impl<'a> fmt::Display for Value<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Number(float) => write!(f, "{}", float),
+            Value::String(string) => write!(f, "{}", string),
+            Value::Object(obj) => {
+                write!(f, "{{")?;
+                if let Some(((key, value), rest)) = obj.split_first() {
+                    write!(f, "{}: {}", key, value)?;
+                    for (key, value) in rest.iter() {
+                        write!(f, ", {} : {}", key, value)?
+                    }
+                }
+                write!(f, "}}")
+            }
+            Value::Boolean(flag) => write!(f, "{}", flag),
+            Value::Null => write!(f, "null"),
+            Value::Array(array) => {
+                write!(f, "[")?;
+                if let Some((value, rest)) = array.split_first() {
+                    write!(f, "{}", value)?;
+                    for value in rest.iter() {
+                        write!(f, ", {}", value)?
+                    }
+                }
+                write!(f, "]")
+            }
+        }
+    }
 }
 
 pub struct Parser<'a> {
