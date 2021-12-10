@@ -1,7 +1,5 @@
 use std::iter::Peekable;
 
-use logos::Logos;
-
 use crate::lexer::{Lexer, SyntaxKind};
 use crate::syntax::Json;
 use rowan::{GreenNode, GreenNodeBuilder, Language};
@@ -30,8 +28,8 @@ impl<'a> Parser<'a> {
 
     pub fn parse_element(&mut self) {
         self.skip_whitespace();
-        match self.peek() {
-            Some(t) => match t {
+        if let Some(t) = self.peek() {
+            match t {
                 SyntaxKind::LeftBrace => self.parse_object(),
                 SyntaxKind::LeftBracket => self.parse_array(),
                 SyntaxKind::True => self.bump(),
@@ -48,8 +46,7 @@ impl<'a> Parser<'a> {
                 _ => {
                     unreachable!()
                 }
-            },
-            None => {}
+            }
         }
         self.skip_whitespace();
     }
@@ -121,7 +118,7 @@ impl<'a> Parser<'a> {
     fn bump(&mut self) {
         let (kind, text) = self.lexer.next().unwrap();
 
-        self.builder.token(Json::kind_to_raw(kind), text.into());
+        self.builder.token(Json::kind_to_raw(kind), text);
     }
     fn start_node(&mut self, kind: SyntaxKind) {
         self.builder.start_node(Json::kind_to_raw(kind));

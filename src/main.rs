@@ -1,11 +1,8 @@
 use json_pop::{parse_str, value::Value};
-use logos::Logos;
 use mimalloc_rust::*;
-use rayon::prelude::*;
-use rowan::{GreenNode, GreenToken, NodeOrToken, SyntaxElement, TextRange};
 use rowan_json::recursive;
-use rowan_json::{lexer::SyntaxKind, parser::Parser, syntax::SyntaxNode, syntax::SyntaxToken};
-use std::{ops::Deref, time::Instant};
+use rowan_json::{parser::Parser, syntax::SyntaxNode};
+use std::time::Instant;
 
 #[global_allocator]
 static GLOBAL_MIMALLOC: GlobalMiMalloc = GlobalMiMalloc;
@@ -20,18 +17,10 @@ fn rowan_traverse(string: &str) {
     let res = parse.parse();
     let mut _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
     println!("rowan {:?}", start.elapsed());
-    let mut iter = _root.preorder();
+    let iter = _root.preorder();
     let now = Instant::now();
-    while let Some(event) = iter.next() {
-        match event {
-            rowan::WalkEvent::Leave(node) => {
-                // if node.kind() == SyntaxKind::Whitespace {
-                //     // node_list.push(node);
-                // }
-                // println!("leave {:?}, ", node.kind());
-            }
-            _ => {}
-        }
+    for event in iter {
+        if let rowan::WalkEvent::Leave(_) = event {}
     }
     traverse(_root.clone());
     println!("traverse rowan {:?}", now.elapsed());
@@ -76,7 +65,7 @@ fn rowan_traverse(string: &str) {
 fn traverse_lr(value: &mut Value) {
     match value {
         Value::Number(_) => {}
-        Value::String(string) => {}
+        Value::String(_) => {}
         Value::Object(v) => {
             v.iter_mut().for_each(|item| {
                 traverse_lr(&mut item.1);
@@ -116,9 +105,9 @@ use nom::{
     bytes::complete::{tag, take},
     character::complete::{anychar, char, multispace0, none_of},
     combinator::{map, map_opt, map_res, value, verify},
-    error::{ErrorKind, ParseError},
+    error::ParseError,
     multi::{fold_many0, separated_list0},
-    number::complete::{double, recognize_float},
+    number::complete::double,
     sequence::{delimited, preceded, separated_pair},
     IResult, Parser as NomParser,
 };
@@ -246,17 +235,15 @@ fn json(input: &str) -> IResult<&str, JsonValue> {
     ws(json_value).parse(input)
 }
 
-use nom::Err;
-use nom::ParseTo;
-fn std_float(input: &[u8]) -> IResult<&[u8], f64, (&[u8], ErrorKind)> {
-    match recognize_float(input) {
-        Err(e) => Err(e),
-        Ok((i, s)) => match s.parse_to() {
-            Some(n) => Ok((i, n)),
-            None => Err(Err::Error((i, ErrorKind::Float))),
-        },
-    }
-}
+// fn std_float(input: &[u8]) -> IResult<&[u8], f64, (&[u8], ErrorKind)> {
+//     match recognize_float(input) {
+//         Err(e) => Err(e),
+//         Ok((i, s)) => match s.parse_to() {
+//             Some(n) => Ok((i, n)),
+//             None => Err(Err::Error((i, ErrorKind::Float))),
+//         },
+//     }
+// }
 
 fn traverse(root: SyntaxNode) {
     for child in root.children() {

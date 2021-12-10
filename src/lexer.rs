@@ -30,10 +30,6 @@ pub enum SyntaxKind {
     #[token("null")]
     Null,
 
-    // (?<string>    " ([^"\\\\]* | \\\\ ["\\\\bfnrt\/] | \\\\ u [0-9a-f]{4} )* " )
-    // ||\\u [0-9a-f]{4})*
-    // #[regex(r#""\\["\\/bfnrt]""#)]
-    // #[regex(r#""\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]""#)]
     #[regex(r#""([^"\\]|\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]|\\["\\/bfnrt])*""#)]
     String,
     // #[regex(r#"\."#)]
@@ -51,22 +47,17 @@ pub enum SyntaxKind {
     #[error]
     Error,
 
-
     Root,
 
     Array,
-    Object
+    Object,
 }
-
-
-
 
 impl From<SyntaxKind> for rowan::SyntaxKind {
     fn from(kind: SyntaxKind) -> Self {
         Self(kind as u16)
     }
 }
-
 
 pub(crate) struct Lexer<'a> {
     inner: logos::Lexer<'a, SyntaxKind>,
