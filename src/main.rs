@@ -10,7 +10,7 @@ use std::{ops::Deref, time::Instant};
 #[global_allocator]
 static GLOBAL_MIMALLOC: GlobalMiMalloc = GlobalMiMalloc;
 fn main() {
-    let string = include_str!("../assets/big.json");
+    let string = include_str!("../assets/large.json");
     rowan_traverse(string);
 }
 
@@ -18,7 +18,7 @@ fn rowan_traverse(string: &str) {
     let start = Instant::now();
     let parse = Parser::new(string);
     let res = parse.parse();
-    let mut _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node).clone_for_update();
+    let mut _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
     println!("rowan {:?}", start.elapsed());
     let mut iter = _root.preorder();
     let now = Instant::now();
@@ -33,6 +33,7 @@ fn rowan_traverse(string: &str) {
             _ => {}
         }
     }
+    traverse(_root.clone());
     println!("traverse rowan {:?}", now.elapsed());
     let start = Instant::now();
     let mut _res = format!("{}", _root);
@@ -68,9 +69,8 @@ fn rowan_traverse(string: &str) {
 
     let start = Instant::now();
     let _string = format!("{}", _res);
-    println!("{}", _string);
+    // println!("{}", _string);
     println!("recursive stringify {:?}", start.elapsed());
-    
 }
 
 fn traverse_lr(value: &mut Value) {
@@ -255,5 +255,11 @@ fn std_float(input: &[u8]) -> IResult<&[u8], f64, (&[u8], ErrorKind)> {
             Some(n) => Ok((i, n)),
             None => Err(Err::Error((i, ErrorKind::Float))),
         },
+    }
+}
+
+fn traverse(root: SyntaxNode) {
+    for child in root.children() {
+        traverse(child);
     }
 }

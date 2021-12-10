@@ -84,12 +84,12 @@ impl<'a> Parser<'a> {
                     let res = inner.parse().unwrap();
                     Value::Number(res)
                 }
-                SyntaxKind::Whitespace
-                | SyntaxKind::Error
-                | SyntaxKind::RightBrace
-                | SyntaxKind::Colon
-                | SyntaxKind::Comma
-                | SyntaxKind::RightBracket => unreachable!(),
+                // SyntaxKind::Whitespace
+                // | SyntaxKind::Error
+                // | SyntaxKind::RightBrace
+                // | SyntaxKind::Colon
+                // | SyntaxKind::Comma
+                // | SyntaxKind::RightBracket => unreachable!(),
                 _ => {
                     unreachable!()
                 }

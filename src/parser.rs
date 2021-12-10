@@ -39,12 +39,12 @@ impl<'a> Parser<'a> {
                 SyntaxKind::Null => self.bump(),
                 SyntaxKind::String => self.bump(),
                 SyntaxKind::Number => self.bump(),
-                SyntaxKind::Whitespace => unreachable!(),
-                SyntaxKind::Error => todo!(),
-                SyntaxKind::RightBrace => unreachable!(),
-                SyntaxKind::Colon => unreachable!(),
-                SyntaxKind::Comma => unreachable!(),
-                SyntaxKind::RightBracket => unreachable!(),
+                // SyntaxKind::Whitespace => unreachable!(),
+                // SyntaxKind::Error => todo!(),
+                // SyntaxKind::RightBrace => unreachable!(),
+                // SyntaxKind::Colon => unreachable!(),
+                // SyntaxKind::Comma => unreachable!(),
+                // SyntaxKind::RightBracket => unreachable!(),
                 _ => {
                     unreachable!()
                 }

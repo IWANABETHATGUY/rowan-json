@@ -32,9 +32,9 @@ pub enum SyntaxKind {
 
     // (?<string>    " ([^"\\\\]* | \\\\ ["\\\\bfnrt\/] | \\\\ u [0-9a-f]{4} )* " )
     // ||\\u [0-9a-f]{4})*
-    #[regex(r#""\\["\\/bfnrt]""#)]
-    #[regex(r#""\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]""#)]
-    #[regex(r#""([^"\\])*""#)]
+    // #[regex(r#""\\["\\/bfnrt]""#)]
+    // #[regex(r#""\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]""#)]
+    #[regex(r#""([^"\\]|\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]|\\["\\/bfnrt])*""#)]
     String,
     // #[regex(r#"\."#)]
     // Text1,
