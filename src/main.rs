@@ -1,7 +1,8 @@
+use chumsky::Parser;
 use json_pop::{parse_str, value::Value};
 use mimalloc_rust::*;
 use rowan_json::recursive;
-use rowan_json::{parser::Parser, syntax::SyntaxNode};
+use rowan_json::{parser::Parser as RowanJsonParser, syntax::SyntaxNode, chumsky::parser as chumsky_parser};
 use std::time::Instant;
 
 #[global_allocator]
@@ -13,7 +14,7 @@ fn main() {
 
 fn rowan_traverse(string: &str) {
     let start = Instant::now();
-    let parse = Parser::new(string);
+    let parse = RowanJsonParser::new(string);
     let res = parse.parse();
     let mut _root = rowan_json::syntax::SyntaxNode::new_root(res.green_node);
     println!("rowan {:?}", start.elapsed());
@@ -50,7 +51,7 @@ fn rowan_traverse(string: &str) {
     let start = Instant::now();
     let mut parser = recursive::Parser::new(string);
     let mut _res = parser.parse();
-    println!("recursive traverser {:?}", start.elapsed());
+    println!("recursive {:?}", start.elapsed());
 
     let start = Instant::now();
     traverse_recursive(&mut _res);
@@ -60,6 +61,12 @@ fn rowan_traverse(string: &str) {
     let _string = format!("{}", _res);
     // println!("{}", _string);
     println!("recursive stringify {:?}", start.elapsed());
+    
+    let start = Instant::now();
+    let res = chumsky_parser();
+    let (ast, err) = res.parse_recovery(string);
+    // println!("{:#?}", ast.unwrap());
+    println!("chumsky {:?}", start.elapsed());
 }
 
 fn traverse_lr(value: &mut Value) {
