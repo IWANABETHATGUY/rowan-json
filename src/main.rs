@@ -2,7 +2,9 @@ use chumsky::Parser;
 use json_pop::{parse_str, value::Value};
 use mimalloc_rust::*;
 use rowan_json::recursive;
-use rowan_json::{parser::Parser as RowanJsonParser, syntax::SyntaxNode, chumsky::parser as chumsky_parser};
+use rowan_json::{
+    chumsky::parser as chumsky_parser, parser::Parser as RowanJsonParser, syntax::SyntaxNode,
+};
 use std::time::Instant;
 
 #[global_allocator]
@@ -61,7 +63,7 @@ fn rowan_traverse(string: &str) {
     let _string = format!("{}", _res);
     // println!("{}", _string);
     println!("recursive stringify {:?}", start.elapsed());
-    
+
     let start = Instant::now();
     let res = chumsky_parser();
     let (ast, err) = res.parse_recovery(string);
